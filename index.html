@@ -165,6 +165,8 @@
         }
 
         const currentPlayerSpan = document.querySelector('.current-player')
+        const lostWhitePieces = document.querySelector('.lost-pieces-white')
+        const lostBlackPieces = document.querySelector('.lost-pieces-black')
 
         // Track the currently selected square
         let selectedSquare = null;
@@ -208,6 +210,11 @@
                     squares[i * 8 + j].innerHTML = chessboard[i][j];
                 }
             }
+
+            currentPlayerSpan.innerHTML = 'white'
+            lostBlackPieces.innerHTML = ''
+            lostWhitePieces.innerHTML = ''
+            currentPlayer = 'white'
 
             initializeBoard()
         }
