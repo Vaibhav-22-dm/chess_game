@@ -4,6 +4,20 @@
 <head>
     <title>Chess Game</title>
     <style>
+        body {
+            margin: 0;
+            background-color: rgb(200, 242, 255);
+        }
+
+        .container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: monospace;
+        }
+
         .board {
             width: 400px;
             height: 400px;
@@ -35,6 +49,10 @@
             border-radius: 50%;
         }
 
+        .players {
+            text-align: left;
+        }
+
         .highlight {
             background-color: #93c572;
         }
@@ -55,11 +73,43 @@
         .pieces {
             display: flex;
         }
+
+
+        h1 {
+            font-family: monospace;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            font-size: 45px;
+            text-align: center;
+        }
+
+        button {
+            padding: 10px;
+            border: none;
+            border-radius: 20px;
+            background: rgb(5, 241, 104);
+            color: white;
+            outline: none;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            font-family: monospace;
+            font-size: 17px;
+            font-weight: bolder;
+        }
+
+        button:hover {
+            cursor: pointer;
+        }
+
+        button:focus {
+            outline: none;
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
+        <h1>Chess Game</h1>
         <div class="board">
             <div class="square white" data-row="0" data-col="0"></div>
             <div class="square black" data-row="0" data-col="1"></div>
@@ -128,16 +178,16 @@
 
             <!-- Add more squares for the complete chessboard -->
         </div>
-        <div class="players">
+        <h2 class="players">
             Current Player: <span class="current-player">white</span>
-        </div>
+        </h2>
         <div class="lost-pieces">
-            <div>
-                White: <span class="lost-pieces-white"></span>
-            </div>
-            <div>
-                black: <span class="lost-pieces-black"></span>
-            </div>
+            <h2>
+                Lost White Pieces: <span class="lost-pieces-white"></span>
+            </h2>
+            <h2>
+                Lost Black Pieces: <span class="lost-pieces-black"></span>
+            </h2>
         </div>
         <div>
             <button class="new-game">New Game</button>
@@ -150,24 +200,11 @@
         </select>
         <button class="promote-btn">Promote</button>
     </form>
-
 </body>
 <script>
     // Chess game logic
     const whites = ['♖', '♘', '♗', '♕', '♔', '♙']
     const blacks = ['♜', '♞', '♝', '♛', '♚', '♟']
-
-    // Initial state of the chessboard
-    let chessboard = [
-        ['♜', '♞', '♝', '♛', '♚', '♝', '♞', '♜'],
-        ['♟', '♟', '♟', '♟', '♟', '♟', '♟', '♟'],
-        ['', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', ''],
-        ['♙', '♙', '♙', '♙', '♙', '♙', '♙', '♙'],
-        ['♖', '♘', '♗', '♕', '♔', '♗', '♘', '♖']
-    ];
 
     const validityFunctions = {
         '♖': isValidRookMove,
@@ -190,18 +227,29 @@
     const squares = document.querySelectorAll('.square');
     const resetButton = document.querySelector('.new-game')
 
-    // Track the currently selected square
-    let selectedSquare = null;
-    let currentPlayer = null;
-    let lastMove = null;
-    let isWhiteKingMoved = false;
-    let isBlackKingMoved = false;
-    let isWhiteRookLeftMoved = false;
-    let isBlackRookLeftMoved = false;
-    let isWhiteRookRightMoved = false;
-    let isBlackRookRightMoved = false;
-    let promotionRow = null;
-    let promotionCol = null;
+    // Initial state of the chessboard
+    let chessboard = [
+        ['♜', '♞', '♝', '♛', '♚', '♝', '♞', '♜'],
+        ['♟', '♟', '♟', '♟', '♟', '♟', '♟', '♟'],
+        ['', '', '', '', '', '', '', ''],
+        ['', '', '', '', '', '', '', ''],
+        ['', '', '', '', '', '', '', ''],
+        ['', '', '', '', '', '', '', ''],
+        ['♙', '♙', '♙', '♙', '♙', '♙', '♙', '♙'],
+        ['♖', '♘', '♗', '♕', '♔', '♗', '♘', '♖']
+    ];
+
+    let selectedSquare = null; // Track the currently selected piece
+    let currentPlayer = null; // Track the current player
+    let lastMove = null; // Track the last move played
+    let isWhiteKingMoved = false; // Track the movement status of white king
+    let isBlackKingMoved = false; // Track the movement status of black king
+    let isWhiteRookLeftMoved = false; // Track the movement status of white left rook
+    let isBlackRookLeftMoved = false; // Track the movement status of black left rook
+    let isWhiteRookRightMoved = false; // Track the movement status of white right rook
+    let isBlackRookRightMoved = false; // Track the movement status of black right rook
+    let promotionRow = null; // Tracks the the row to which pawn is getting promoted
+    let promotionCol = null; // Tracks the the col to which pawn is getting promoted
 
     // A function to start a new game
     function resetGame() {
@@ -218,7 +266,7 @@
             ['♖', '♘', '♗', '♕', '♔', '♗', '♘', '♖']
         ]
 
-        // Putting all the pieces at right place
+        // Putting all the pieces at the right place
         for (let i = 0; i < 8; i++) {
             for (let j = 0; j < 8; j++) {
                 squares[i * 8 + j].innerHTML = chessboard[i][j];
@@ -229,6 +277,10 @@
         // Removing highlight css from all the squares
         document.querySelectorAll('.highlight').forEach(square => square.classList.remove('highlight'));
         document.querySelectorAll('.red').forEach(square => square.classList.remove('red'));
+
+        // Hiding the promotion pieces dropdown
+        document.querySelector('.promote-pieces-form').classList.remove('d-flex')
+        document.querySelector('.promote-pieces-form').classList.add('d-none')
 
         currentPlayerSpan.innerHTML = 'white' // White to play first
         lostBlackPieces.innerHTML = '' // No lost pieces of black initially
@@ -365,9 +417,7 @@
                     else {
                         // Moving the pieces
                         await makeMove(selectedRow, selectedCol, row, col)
-
                     }
-
                 }
                 // If the move is invalid 
                 else {
@@ -378,6 +428,7 @@
     }
 
     function makeMove(fromRow, fromCol, toRow, toCol) {
+
         let opponent = document.querySelector(`.square[data-row="${toRow}"][data-col="${toCol}"]`).textContent
 
         // If a white king is to be moved
@@ -411,6 +462,7 @@
                 squares[7 * 8 + 7].textContent = '';
                 squares[7 * 8 + 5].textContent = '♖';
             }
+            // If it is normal white king move
             else {
                 // Updating the chessboard
                 chessboard[toRow][toCol] = chessboard[fromRow][fromCol];
@@ -452,8 +504,8 @@
                 squares[7].textContent = '';
                 squares[5].textContent = '♜';
             }
+            // If it is a normal black king move
             else {
-
                 // Updating the chessboard
                 chessboard[toRow][toCol] = chessboard[fromRow][fromCol];
                 chessboard[fromRow][fromCol] = '';
@@ -534,9 +586,7 @@
             // Restarting the game
             resetGame()
         }
-
     }
-
 
     document.querySelector('.promote-btn').addEventListener('click', async (e) => {
         e.preventDefault();
