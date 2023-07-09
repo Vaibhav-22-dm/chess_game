@@ -42,6 +42,19 @@
         .red {
             background-color: #ff6c69;
         }
+
+        .d-none {
+            display: none;
+        }
+
+        .d-flex {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pieces {
+            display: flex;
+        }
     </style>
 </head>
 
@@ -130,6 +143,13 @@
             <button class="new-game">New Game</button>
         </div>
     </div>
+    <form class="promote-pieces-form d-none">
+        <label>Choose a piece to prmote</label>
+        <select class="promote-pieces-dropdown">
+            <option></option>
+        </select>
+        <button class="promote-btn">Promote</button>
+    </form>
 
 </body>
 <script>
@@ -180,6 +200,8 @@
     let isBlackRookLeftMoved = false;
     let isWhiteRookRightMoved = false;
     let isBlackRookRightMoved = false;
+    let promotionRow = null;
+    let promotionCol = null;
 
     // A function to start a new game
     function resetGame() {
@@ -207,7 +229,6 @@
         // Removing highlight css from all the squares
         document.querySelectorAll('.highlight').forEach(square => square.classList.remove('highlight'));
         document.querySelectorAll('.red').forEach(square => square.classList.remove('red'));
-
 
         currentPlayerSpan.innerHTML = 'white' // White to play first
         lostBlackPieces.innerHTML = '' // No lost pieces of black initially
@@ -286,14 +307,6 @@
                 if (isValid) {
                     // If a King or Rook is moved we modify the castling flags as per the current player
 
-                    // if (chessboard[selectedRow][selectedCol] === '♔' || chessboard[selectedRow][selectedCol] === '♖') {
-                    //     isWhiteCastleAllowed = false
-                    // }
-
-                    // if (chessboard[selectedRow][selectedCol] === '♚' || chessboard[selectedRow][selectedCol] === '♜') {
-                    //     isBlackCastleAllowed = false
-                    // }
-
                     if (chessboard[selectedRow][selectedCol] === '♔') {
                         isWhiteKingMoved = true;
                     }
@@ -318,50 +331,43 @@
                         isBlackRookRightMoved = true;
                     }
 
-                    // Moving the pieces
-                    await makeMove(selectedRow, selectedCol, row, col)
+                    // If promotion can be done
+                    if (
+                        (chessboard[selectedRow][selectedCol] === '♙' && row === 0) ||
+                        (chessboard[selectedRow][selectedCol] === '♟' && row === 7)
+                    ) {
 
-                    // Remove existing highlighting
-                    document.querySelectorAll(".square").forEach(item => {
-                        item.classList.remove("highlight")
-                        item.classList.remove("red")
-                    })
+                        squares.forEach(item => item.classList.remove('highlight'))
+                        squares[row * 8 + col].classList.add('highlight')
 
-                    // Updating the last move
-                    lastMove = {
-                        fromRow: selectedRow,
-                        fromCol: selectedCol,
-                        toRow: row,
-                        toCol: col,
-                        piece: chessboard[row][col]
+                        if (whites.includes(chessboard[selectedRow][selectedCol])) {
+                            document.querySelector('.promote-pieces-dropdown').innerHTML = '<option>♕</option>'
+                            document.querySelector('.promote-pieces-dropdown').innerHTML += '<option>♖</option>'
+                            document.querySelector('.promote-pieces-dropdown').innerHTML += '<option>♘</option>'
+                            document.querySelector('.promote-pieces-dropdown').innerHTML += '<option>♗</option>'
+                        }
+                        else {
+                            document.querySelector('.promote-pieces-dropdown').innerHTML = '<option>♛</option>'
+                            document.querySelector('.promote-pieces-dropdown').innerHTML += '<option>♜</option>'
+                            document.querySelector('.promote-pieces-dropdown').innerHTML += '<option>♞</option>'
+                            document.querySelector('.promote-pieces-dropdown').innerHTML += '<option>♝</option>'
+                        }
+
+                        document.querySelector('.promote-pieces-form').classList.remove("d-none")
+                        document.querySelector('.promote-pieces-form').classList.remove("d-flex")
+
+                        promotionRow = row;
+                        promotionCol = col;
+
+                        alert('Choose a piece from the dropdown at the bottom to promote!')
                     }
 
-                    // If an opponent piece is captured
-                    if (isOpponentPiece(square.textContent)) {
-                        // Updating the lost pieces UI
-                        document.querySelector(`.lost-pieces-${currentPlayer}`).innerHTML += square.textContent;
+                    else {
+                        // Moving the pieces
+                        await makeMove(selectedRow, selectedCol, row, col)
+
                     }
 
-                    // Resetting the selected square
-                    selectedSquare = null;
-
-                    // Resetting the current player
-                    currentPlayer = currentPlayer === 'white' ? 'black' : 'white';
-                    // Updating the current player UI
-                    currentPlayerSpan.innerHTML = currentPlayer
-
-                    // If the move caused a checkmate
-                    if (isCheckmate()) {
-                        alert('Checkmate! Press OK to restart the game');
-                        // Restarting the game
-                        resetGame()
-                    }
-                    // If the move caused a stalemate
-                    else if (isStalemate()) {
-                        alert('Stalemate! Press OK to restart the game');
-                        // Restarting the game
-                        resetGame()
-                    }
                 }
                 // If the move is invalid 
                 else {
@@ -372,6 +378,8 @@
     }
 
     function makeMove(fromRow, fromCol, toRow, toCol) {
+        let opponent = document.querySelector(`.square[data-row="${toRow}"][data-col="${toCol}"]`).textContent
+
         // If a white king is to be moved
         if (chessboard[fromRow][fromCol] === '♔') {
             // If it is a Queen's side castling
@@ -460,6 +468,7 @@
             (chessboard[fromRow][fromCol] === '♙' || chessboard[fromRow][fromCol] === '♟') &&
             (Math.abs(fromRow - toRow) === 1 && Math.abs(fromCol - toCol) === 1 && chessboard[toRow][toCol] === '')
         ) {
+            opponent = whites.includes(chessboard[fromRow][fromCol]) ? '♟' : '♙'
             // Updating the chessboard
             chessboard[toRow][toCol] = chessboard[fromRow][fromCol]
             chessboard[fromRow][fromCol] = ''
@@ -469,6 +478,7 @@
             squares[toRow * 8 + toCol].textContent = chessboard[toRow][toCol]
             squares[fromRow * 8 + fromCol].textContent = ''
             squares[lastMove.toRow * 8 + lastMove.toCol].textContent = ''
+
         }
         // If a normal move is to be made
         else {
@@ -480,7 +490,74 @@
             squares[toRow * 8 + toCol].textContent = chessboard[toRow][toCol];
             squares[fromRow * 8 + fromCol].textContent = '';
         }
+
+        // Remove existing highlighting
+        document.querySelectorAll(".square").forEach(item => {
+            item.classList.remove("highlight")
+            item.classList.remove("red")
+        })
+
+        // Updating the last move
+        lastMove = {
+            fromRow: fromRow,
+            fromCol: fromCol,
+            toRow: toRow,
+            toCol: toCol,
+            piece: chessboard[toRow][toCol]
+        }
+
+        // If an opponent piece is captured
+        if (isOpponentPiece(opponent)) {
+            // Updating the lost pieces UI
+            document.querySelector(`.lost-pieces-${currentPlayer}`).innerHTML += opponent;
+        }
+
+        // Resetting the selected square
+        selectedSquare = null;
+        promotionRow = null;
+        promotionCol = null;
+
+        // Resetting the current player
+        currentPlayer = currentPlayer === 'white' ? 'black' : 'white';
+        // Updating the current player UI
+        currentPlayerSpan.innerHTML = currentPlayer
+
+        // If the move caused a checkmate
+        if (isCheckmate()) {
+            alert('Checkmate! Press OK to restart the game');
+            // Restarting the game
+            resetGame()
+        }
+        // If the move caused a stalemate
+        else if (isStalemate()) {
+            alert('Stalemate! Press OK to restart the game');
+            // Restarting the game
+            resetGame()
+        }
+
     }
+
+
+    document.querySelector('.promote-btn').addEventListener('click', async (e) => {
+        e.preventDefault();
+        let piece = document.querySelector('.promote-pieces-dropdown').value;
+        if (piece === "") {
+            alert("Please choose a piece")
+        }
+        else {
+            // Getting the row & col of the selected piece
+            const selectedRow = parseInt(selectedSquare.getAttribute('data-row'));
+            const selectedCol = parseInt(selectedSquare.getAttribute('data-col'));
+
+            chessboard[selectedRow][selectedCol] = piece
+
+            await makeMove(selectedRow, selectedCol, promotionRow, promotionCol)
+
+            document.querySelector('.promote-pieces-form').classList.remove('d-flex')
+            document.querySelector('.promote-pieces-form').classList.add('d-none')
+
+        }
+    })
 
     // Function to check if a piece belongs to the opponent
     function isOpponentPiece(piece) {
@@ -1000,11 +1077,6 @@
             boardString += "\n"
         }
         console.log(boardString)
-    }
-
-    function promotePiece(piece, row, col) {
-        chessboard[row][col] = piece;
-
     }
 
     // Initialize the chessboard
