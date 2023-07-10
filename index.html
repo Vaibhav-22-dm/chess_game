@@ -1,115 +1,34 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="./css/game.css">
     <title>Chess Game</title>
-    <style>
-        body {
-            margin: 0;
-            background-color: rgb(200, 242, 255);
-        }
-
-        .container {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            font-family: monospace;
-        }
-
-        .board {
-            width: 400px;
-            height: 400px;
-            display: flex;
-            flex-wrap: wrap;
-        }
-
-        .square {
-            width: 50px;
-            height: 50px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            font-size: 30px;
-        }
-
-        .white {
-            background-color: #f0d9b5;
-        }
-
-        .black {
-            background-color: #b58863;
-        }
-
-        .piece {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-        }
-
-        .players {
-            text-align: left;
-        }
-
-        .highlight {
-            background-color: #93c572;
-        }
-
-        .red {
-            background-color: #ff6c69;
-        }
-
-        .d-none {
-            display: none;
-        }
-
-        .d-flex {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .pieces {
-            display: flex;
-        }
-
-
-        h1 {
-            font-family: monospace;
-            margin-top: 20px;
-            margin-bottom: 20px;
-            font-size: 45px;
-            text-align: center;
-        }
-
-        button {
-            padding: 10px;
-            border: none;
-            border-radius: 20px;
-            background: rgb(5, 241, 104);
-            color: white;
-            outline: none;
-            margin-top: 20px;
-            margin-bottom: 20px;
-            font-family: monospace;
-            font-size: 17px;
-            font-weight: bolder;
-        }
-
-        button:hover {
-            cursor: pointer;
-        }
-
-        button:focus {
-            outline: none;
-        }
-    </style>
+    <!-- <script src="./js/auth.js"></script> -->
 </head>
 
 <body>
     <div class="container">
         <h1>Chess Game</h1>
+        <div class="promote-pieces-menu d-none flex-direction-column">
+            <h2>Choose a piece to promote</h2>
+            <div class="chess-menu menu-black d-none">
+                <div class="chess-menu-item">♜</div>
+                <div class="chess-menu-item">♝</div>
+                <div class="chess-menu-item">♞</div>
+                <div class="chess-menu-item">♛</div>
+            </div>
+            <div class="chess-menu menu-white d-none">
+                <div class="chess-menu-item">♖</div>
+                <div class="chess-menu-item">♗</div>
+                <div class="chess-menu-item">♘</div>
+                <div class="chess-menu-item">♕</div>
+            </div>
+            <button class="promote-btn">Promote</button>
+        </div>
         <div class="board">
             <div class="square white" data-row="0" data-col="0"></div>
             <div class="square black" data-row="0" data-col="1"></div>
@@ -193,13 +112,6 @@
             <button class="new-game">New Game</button>
         </div>
     </div>
-    <form class="promote-pieces-form d-none">
-        <label>Choose a piece to prmote</label>
-        <select class="promote-pieces-dropdown">
-            <option></option>
-        </select>
-        <button class="promote-btn">Promote</button>
-    </form>
 </body>
 <script>
     // Chess game logic
@@ -226,6 +138,9 @@
     const lostBlackPieces = document.querySelector('.lost-pieces-black')
     const squares = document.querySelectorAll('.square');
     const resetButton = document.querySelector('.new-game')
+    const promotePiecesMenu = document.querySelector('.promote-pieces-menu')
+    const chessMenus = document.querySelectorAll('.chess-menu')
+    const chessMenuItems = document.querySelectorAll('.chess-menu-item')
 
     // Initial state of the chessboard
     let chessboard = [
@@ -279,8 +194,8 @@
         document.querySelectorAll('.red').forEach(square => square.classList.remove('red'));
 
         // Hiding the promotion pieces dropdown
-        document.querySelector('.promote-pieces-form').classList.remove('d-flex')
-        document.querySelector('.promote-pieces-form').classList.add('d-none')
+        document.querySelector('.promote-pieces-menu').classList.remove('d-flex')
+        document.querySelector('.promote-pieces-menu').classList.add('d-none')
 
         currentPlayerSpan.innerHTML = 'white' // White to play first
         lostBlackPieces.innerHTML = '' // No lost pieces of black initially
@@ -297,7 +212,9 @@
         isBlackRookRightMoved = false;
     }
 
-    resetButton.addEventListener('click', resetGame);
+    resetButton.addEventListener('click', () => {
+        window.location.reload()
+    });
 
     // Function to select a square and make moves
     async function selectSquare(row, col) {
@@ -353,7 +270,6 @@
             // If the currently selected square is empty & doesn't contain current player's piece
             else {
                 // Checking if the move is valid
-                // let isValid = await isValidMove(selectedRow, selectedCol, row, col)
                 let isValid = squares[row * 8 + col].classList.contains('highlight')
 
                 if (isValid) {
@@ -393,20 +309,16 @@
                         squares[row * 8 + col].classList.add('highlight')
 
                         if (whites.includes(chessboard[selectedRow][selectedCol])) {
-                            document.querySelector('.promote-pieces-dropdown').innerHTML = '<option>♕</option>'
-                            document.querySelector('.promote-pieces-dropdown').innerHTML += '<option>♖</option>'
-                            document.querySelector('.promote-pieces-dropdown').innerHTML += '<option>♘</option>'
-                            document.querySelector('.promote-pieces-dropdown').innerHTML += '<option>♗</option>'
+                            document.querySelector('.menu-white').classList.remove('d-none')
+                            document.querySelector('.menu-white').classList.add('d-flex')
                         }
                         else {
-                            document.querySelector('.promote-pieces-dropdown').innerHTML = '<option>♛</option>'
-                            document.querySelector('.promote-pieces-dropdown').innerHTML += '<option>♜</option>'
-                            document.querySelector('.promote-pieces-dropdown').innerHTML += '<option>♞</option>'
-                            document.querySelector('.promote-pieces-dropdown').innerHTML += '<option>♝</option>'
+                            document.querySelector('.menu-black').classList.remove('d-none')
+                            document.querySelector('.menu-black').classList.add('d-flex')
                         }
 
-                        document.querySelector('.promote-pieces-form').classList.remove("d-none")
-                        document.querySelector('.promote-pieces-form').classList.remove("d-flex")
+                        promotePiecesMenu.classList.remove("d-none")
+                        promotePiecesMenu.classList.add("d-flex")
 
                         promotionRow = row;
                         promotionCol = col;
@@ -590,8 +502,8 @@
 
     document.querySelector('.promote-btn').addEventListener('click', async (e) => {
         e.preventDefault();
-        let piece = document.querySelector('.promote-pieces-dropdown').value;
-        if (piece === "") {
+        let piece = document.querySelector('.selected');
+        if (piece === "" || piece === null) {
             alert("Please choose a piece")
         }
         else {
@@ -599,15 +511,33 @@
             const selectedRow = parseInt(selectedSquare.getAttribute('data-row'));
             const selectedCol = parseInt(selectedSquare.getAttribute('data-col'));
 
-            chessboard[selectedRow][selectedCol] = piece
+            chessboard[selectedRow][selectedCol] = piece.innerHTML
 
             await makeMove(selectedRow, selectedCol, promotionRow, promotionCol)
 
-            document.querySelector('.promote-pieces-form').classList.remove('d-flex')
-            document.querySelector('.promote-pieces-form').classList.add('d-none')
+            piece.classList.remove('selected')
+
+            chessMenus.forEach(item => item.classList.remove('d-flex'))
+            chessMenus.forEach(item => item.classList.add('d-none'))
+
+            promotePiecesMenu.classList.remove('d-flex')
+            promotePiecesMenu.classList.add('d-none')
 
         }
     })
+
+    function selectPiece(piece) {
+        chessMenuItems.forEach((item) => {
+            item.classList.remove('selected');
+            if (item.textContent === piece) {
+                item.classList.add('selected');
+            }
+        });
+    }
+
+    chessMenuItems.forEach(item => item.addEventListener('click', () => {
+        selectPiece(item.innerHTML)
+    }))
 
     // Function to check if a piece belongs to the opponent
     function isOpponentPiece(piece) {
@@ -992,6 +922,7 @@
         return false; // King is not threatened
     }
 
+    // Function to check if the move is legal
     function isIllegalMove(fromRow, fromCol, toRow, toCol) {
 
         let oldboard = getBoard(chessboard);
@@ -1090,6 +1021,7 @@
 
     }
 
+    // Function to highlight squares where a piece can go
     async function highlightValidMoves(piece, row, col) {
 
         const highlightedSquares = document.querySelectorAll('.highlight');
@@ -1106,6 +1038,7 @@
         }
     }
 
+    // Function to copy and return the same board
     function getBoard(oldboard) {
         let board = []
         for (var i = 0; i < 8; i++) {
@@ -1118,6 +1051,7 @@
         return board;
     }
 
+    // Function to print the board
     function printChessBoard(board) {
         let boardString = ""
         for (var i = 0; i < 8; i++) {

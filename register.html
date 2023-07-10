@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="./css/form.css">
+    <title>Registration Page</title>
+</head>
+
+<body>
+    <div class="container height-100">
+        <form class="register-form ">
+            <h1>Registration Page</h1>
+            <input type="text" id="username" name="username" placeholder="Enter Username" required>
+            <input type="password" id="password" name="password" placeholder="Enter Password" required>
+            <input type="password" id="confirm-password" placeholder="Confirm Password" name="confirm-password"
+                required>
+            <button type="submit">Register</button>
+            <div id="error-container" class="error-message"></div>
+        </form>
+    </div>
+</body>
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        const passwordField = document.getElementById('password');
+        const confirmPasswordField = document.getElementById('confirm-password');
+        const errorContainer = document.getElementById('error-container');
+
+        function handlePasswordMismatch() {
+            const password = passwordField.value;
+            const confirmPassword = confirmPasswordField.value;
+
+            if (password !== confirmPassword) {
+                errorContainer.textContent = 'Passwords do not match';
+                confirmPasswordField.classList.add('error');
+            } else {
+                errorContainer.textContent = '';
+                confirmPasswordField.classList.remove('error');
+            }
+        }
+
+        confirmPasswordField.addEventListener('input', handlePasswordMismatch);
+    });
+</script>
+
+</html>
