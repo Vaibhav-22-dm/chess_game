@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./css/styles.css" />
+    <link rel="stylesheet" href="./css/form.css" />
+    <title>Start Game</title>
+  </head>
+
+  <body>
+    <div class="container height-100">
+      <form class="register-form">
+        <h1>Start A Game</h1>
+        <input
+          type="text"
+          id="room_id"
+          name="room_id"
+          placeholder="Enter Room Id to join"
+          required
+        />
+        <select id="role" name="role" placeholder="Select Role" required>
+          <option value="spectator">Spectator</option>
+          <option value="player">Player</option>
+        </select>
+        <div>
+          <button type="submit" id="join">Start Game</button>
+          OR
+          <button type="submit" id="create">Create New Game</button>
+        </div>
+        <div id="info-container" class="info-message"></div>
+      </form>
+    </div>
+  </body>
+
+  <script>
+    const roomIdInput = document.getElementById("room_id");
+    const roleInput = document.getElementById("role");
+    const createButton = document.getElementById("create");
+    const joinButton = document.getElementById("join");
+
+    function createRoom(e) {
+      e.preventDefault();
+      fetch("http://localhost:3000/room/create", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }).then(async (res) => {
+        if (res.ok) {
+          localStorage.setItem("room_id", localStorage.getItem("username"));
+          localStorage.setItem("role", "player");
+          window.location.href = "/index.html";
+        }
+      });
+    }
+
+    function joinRoom(e) {
+      e.preventDefault();
+      localStorage.setItem("room_id", roomIdInput.value);
+      localStorage.setItem("role", roleInput.value);
+      window.location.href = "/index.html";
+    }
+
+    createButton.addEventListener("click", createRoom);
+    joinButton.addEventListener("click", joinRoom);
+  </script>
+</html>

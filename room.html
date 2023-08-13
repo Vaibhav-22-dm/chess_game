@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Game Invitation</title>
+    <style>
+      .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 50px;
+      }
+
+      .user-list {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+        max-width: 300px;
+      }
+
+      .user-list li {
+        margin-bottom: 10px;
+      }
+
+      .invite-btn {
+        background-color: #4caf50;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin-top: 20px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Game Invitation</h1>
+      <ul class="user-list">
+        <li>
+          <input
+            type="checkbox"
+            id="user1"
+            name="users"
+            value="user1"
+            checked
+          />
+          User 1 (Online)
+        </li>
+        <li>
+          <input
+            type="checkbox"
+            id="user2"
+            name="users"
+            value="user2"
+            checked
+          />
+          User 2 (Online)
+        </li>
+        <li>
+          <input type="checkbox" id="user3" name="users" value="user3" /> User 3
+          (Offline)
+        </li>
+        <li>
+          <input
+            type="checkbox"
+            id="user4"
+            name="users"
+            value="user4"
+            checked
+          />
+          User 4 (Online)
+        </li>
+        <li>
+          <input type="checkbox" id="user5" name="users" value="user5" /> User 5
+          (Offline)
+        </li>
+      </ul>
+      <button class="invite-btn" onclick="sendInvitations()">
+        Send Invitations
+      </button>
+    </div>
+
+    <script>
+      function sendInvitations() {
+        const checkboxes = document.querySelectorAll(
+          'input[name="users"]:checked'
+        );
+        const selectedUsers = Array.from(checkboxes).map(
+          (checkbox) => checkbox.value
+        );
+        // Send the selected users to the server or perform any other desired action
+        console.log(selectedUsers);
+      }
+    </script>
+  </body>
+</html>
