@@ -45,3 +45,15 @@ button:hover {
 button:focus {
     outline: none;
 }
+
+.d-flex{
+    display: flex;
+}
+
+.flex-column{
+    flex-direction: column;
+}
+
+.p-10{
+    padding: 10px;
+}
