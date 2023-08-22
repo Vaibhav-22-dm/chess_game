@@ -57,3 +57,7 @@ button:focus {
 .p-10{
     padding: 10px;
 }
+
+.pr-10{
+    padding-right: 10px;
+}

@@ -1,5 +1,7 @@
 // import { cloneDeep } from 'lodash'
 import { Move, ChessGame, getValidMoves, makeMove } from './game.js'
+
+
 /* 
  * Piece Square Tables, adapted from Sunfish.py:
  * https://github.com/thomasahle/sunfish/blob/master/sunfish.py
@@ -20,20 +22,13 @@ var weights = {
     '♔': 60000
 };
 
+
+const calls = document.querySelector(".calls")
+
+
 /* 
  * Evaluates the board at this point in time, 
  * using the material weights and piece square tables.
-*/
-
-/*
-move = {
-    'fromRow': ,
-    'to[2]': [int,int],
-    'piece': char,
-    'captured': char,
-    'color': char,
-    'promotion': char
-}
 */
 
 function evaluateBoard(game) {
@@ -48,7 +43,6 @@ function evaluateBoard(game) {
             }
         }
     }
-    console.log("1: ", whiteScore, "2: ", blackScore)
     if (game.currentPlayer == 'white') return whiteScore - blackScore
     else return blackScore - whiteScore
 }
@@ -64,54 +58,18 @@ function evaluateBoard(game) {
  *  - game:                 the game object.
  *  - depth:                the depth of the recursive tree of all possible moves (i.e. height limit).
  *  - isMaximizingPlayer:   true if the current layer is maximizing, false otherwise.
- *  - sum:                  the sum (evaluation) so far at the current layer.
- *  - color:                the color of the current player.
  * 
  * Output:
  *  the best move at the root of the current subtree.
  */
 export function minimax(game, depth, alpha, beta, isMaximizingPlayer) {
-    // positionCount++;
-    console.log("depth: ", depth)
-    // console.log("color: ", game.currentPlayer)
-
     let allMoves = [];
-
-
-
-    // if(game.currentPlayer === 'white') {
-    //     // console.log(game.whitePieces)
-    //     for (let [key, value] of game.whitePieces) {
-    //         let moves = getValidMoves(game, key)
-    //         // console.log("moves: ", moves)
-    //         moves.forEach(move => allMoves.push(
-    //             {
-    //                 fromSquare: value,
-    //                 move: move
-    //             }
-    //         ));
-    //     }
-    // }
-    // else {
-    //     // console.log(game.blackPieces)
-    //     for (let [key, value] of game.blackPieces) {
-    //         let moves = getValidMoves(game, key)
-    //         // console.log("moves: ", moves)
-    //         moves.forEach(move => allMoves.push(
-    //             {
-    //                 fromSquare: value,
-    //                 move: move
-    //             }
-    //         ));
-    //     }
-    // }
-
+    calls.innerHTML = parseInt(calls.innerHTML)+1;
 
     for (var i = 0; i < 8; i++) {
         for (var j = 0; j < 8; j++) {
             if (game.board.board[i][j] != null) {
                 if (game.board.board[i][j].color === game.currentPlayer) {
-                    // console.log(game.board.board[i][j])
                     let moves = getValidMoves(game, game.board.board[i][j])
                     moves.forEach(move => allMoves.push(
                         {
@@ -128,12 +86,8 @@ export function minimax(game, depth, alpha, beta, isMaximizingPlayer) {
 
     var children = allMoves;
 
-    // console.log("children: ", children);
-
     // Sort moves randomly, so the same move isn't always picked on ties
     children.sort(function (a, b) { return 0.5 - Math.random() });
-
-    // console.log("children: ", children)
 
     var currMove;
     // Maximum depth exceeded or node is a terminal node (no children)
@@ -152,48 +106,17 @@ export function minimax(game, depth, alpha, beta, isMaximizingPlayer) {
 
     for (var i = 0; i < children.length; i++) {
 
-        // console.log("i: ", i)
-
         currMove = children[i];
 
-
-        // console.log("currMove: ", currMove)
-
-        // Note: in our case, the 'children' are simply modified game states
-
-        let prevGame = JSON.stringify(game)
-        // let whitePieces = game.whitePieces
-        // let blackPieces = game.blackPieces
-
-        // console.log("prev: " + prevState)
-        // console.log("piece: ", currMove.fromSquare)
-
-        // console.log("0: ", game.selectedSquare)
-        // game.selectedSquare = currMove.fromSquare
-        // console.log("1: " , game.selectedSquare)
         let dummy = JSON.parse(JSON.stringify(game))
         dummy.selectedSquare = {
             row: currMove.fromRow,
             col: currMove.fromCol
         }
         makeMove(dummy, currMove.toRow, currMove.toCol)
-        printBoard(dummy.board.board)
-        // console.log("2: ", game.selectedSquare)
 
 
         var [childBestMove, childValue] = minimax(dummy, depth - 1, alpha, beta, !isMaximizingPlayer);
-
-        // console.log("value: ", childValue)
-
-        // game = JSON.parse(prevGame)
-        // game.whitePieces = whitePieces
-        // game.blackPieces = blackPieces
-
-        // console.log("3: ", game.selectedSquare)
-
-        // console.log("value: ", childValue)
-
-
         // If white is playing then it will try to increase the value in positive side
         if (isMaximizingPlayer) {
             if (childValue > maxValue) {
@@ -223,9 +146,6 @@ export function minimax(game, depth, alpha, beta, isMaximizingPlayer) {
     }
 
     game = JSON.parse(initial)
-
-    // console.log("best: ", bestMove)
-
 
     if (isMaximizingPlayer) {
         return [bestMove, maxValue]

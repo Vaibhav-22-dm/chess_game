@@ -1,5 +1,5 @@
 import { isValidMove } from "./validators.js";
-import { printBoard } from "./engine.js";
+
 const COLORS = {
     W: 'white',
     B: 'black'
@@ -9,10 +9,10 @@ const ICONS = {
     black:
     {
         pawn: '♟',
-        knight:'♞',
-        bishop:'♝',
-        rook:'♜',
-        queen:'♛',
+        knight: '♞',
+        bishop: '♝',
+        rook: '♜',
+        queen: '♛',
         king: '♚',
     },
     white: {
@@ -26,14 +26,15 @@ const ICONS = {
 }
 
 export class Piece {
-    constructor(color, row, col, left, right, icon) {
+    constructor(color, row, col, left, right, icon, promoted=false) {
         this.color = color;
         this.row = row;
         this.col = col;
         this.moved = false;
         this.left = left;
         this.right = right;
-        this.icon = icon
+        this.icon = icon;
+        this.promoted = promoted;
     }
 }
 
@@ -95,11 +96,11 @@ export class Move {
 }
 
 export class ChessGame {
-    constructor(whitePlayer, blackPlayer) {
+    constructor() {
         this.board = new Board();
         this.currentPlayer = COLORS.W;
-        this.whitePlayer = whitePlayer;
-        this.blackPlayer = blackPlayer;
+        this.whitePlayer = null;
+        this.blackPlayer = null;
         this.lastMove = null;
         this.capturedWhites = [];
         this.capturedBlacks = [];
@@ -110,28 +111,40 @@ export class ChessGame {
         this.whiteRightRookMoved = false;
         this.blackLeftRookMoved = false;
         this.blackRightRookMoved = false;
+        this.finished = false;
+        this.winner = null;
+        this.draw = false;
+        this.resign = null;
     }
 }
 
 
-export function makeMove(game, row, col, check=false) {
+export function makeMove(game, row, col, promoted=false, check = false) {
 
     game.lastMove = new Move(game.selectedSquare.row, game.selectedSquare.col, row, col)
 
     if (!game.whiteKingMoved && game.board.board[game.selectedSquare.row][game.selectedSquare.col].icon === ICONS.white.king) game.whiteKingMoved = true;
     if (!game.whiteKingMoved && game.board.board[game.selectedSquare.row][game.selectedSquare.col].icon === ICONS.white.king) game.blackKingMoved = true;
     if (!game.whiteLeftRookMoved && game.selectedSquare.row === 7 && game.selectedSquare.col === 0 && game.board.board[game.selectedSquare.row][game.selectedSquare.col].icon === ICONS.white.rook) game.whiteLeftRookMoved = true;
-    if (!game.whiteRightRookMoved && game.selectedSquare.row === 7 && game.selectedSquare.col === 7 &&  game.board.board[game.selectedSquare.row][game.selectedSquare.col].icon === ICONS.white.rook) game.whiteRightRookMoved = true;
-    if (!game.blackLeftRookMoved && game.selectedSquare.row === 0 && game.selectedSquare.col === 0 &&  game.board.board[game.selectedSquare.row][game.selectedSquare.col].icon === ICONS.black.rook) game.blackLeftRookMoved = true;
-    if (!game.blackRightRookMoved && game.selectedSquare.row === 0 && game.selectedSquare.col === 7 &&  game.board.board[game.selectedSquare.row][game.selectedSquare.col].icon === ICONS.black.rook) game.blackRightRookMoved = true;
-
+    if (!game.whiteRightRookMoved && game.selectedSquare.row === 7 && game.selectedSquare.col === 7 && game.board.board[game.selectedSquare.row][game.selectedSquare.col].icon === ICONS.white.rook) game.whiteRightRookMoved = true;
+    if (!game.blackLeftRookMoved && game.selectedSquare.row === 0 && game.selectedSquare.col === 0 && game.board.board[game.selectedSquare.row][game.selectedSquare.col].icon === ICONS.black.rook) game.blackLeftRookMoved = true;
+    if (!game.blackRightRookMoved && game.selectedSquare.row === 0 && game.selectedSquare.col === 7 && game.board.board[game.selectedSquare.row][game.selectedSquare.col].icon === ICONS.black.rook) game.blackRightRookMoved = true;
 
     game.board.board[game.selectedSquare.row][game.selectedSquare.col].moved = true;
 
     game.board.board[game.selectedSquare.row][game.selectedSquare.col].row = row;
     game.board.board[game.selectedSquare.row][game.selectedSquare.col].col = col;
 
-    game.board.board[row][col] = game.board.board[game.selectedSquare.row][game.selectedSquare.col]
+    if(game.board.board[row][col]){
+        if(game.currentPlayer===COLORS.W) game.capturedBlacks.push(game.board.board[row][col]);
+        else game.capturedWhites.push(game.board.board[row][col])
+    }
+
+    if(!promoted) game.board.board[row][col] = game.board.board[game.selectedSquare.row][game.selectedSquare.col]
+    else {
+        console.log(ICONS[game.currentPlayer][promoted])
+        game.board.board[row][col] = new Piece(game.currentPlayer, row, col, false, false, ICONS[game.currentPlayer][promoted], true)
+    }
     game.board.board[game.selectedSquare.row][game.selectedSquare.col] = null;
 
     game.selectedSquare = null;

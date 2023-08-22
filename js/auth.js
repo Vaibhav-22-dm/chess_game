@@ -1,7 +1,7 @@
 function authenticate() {
   const sessionID = localStorage.getItem("token");
 
-  // Check if session ID exists and is not expired
+  // Check if session ID exists
   if (!sessionID) {
     // Redirect to the login page
     window.location.href = "login.html";

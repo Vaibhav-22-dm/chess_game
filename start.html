@@ -16,7 +16,7 @@
           type="text"
           id="room_id"
           name="room_id"
-          placeholder="Enter Room Id to join"
+          placeholder="Enter Game Id to join"
           required
         />
         <select id="role" class="p-10" name="role" placeholder="Select Role" required>
@@ -32,46 +32,6 @@
       </form>
     </div>
   </body>
-
-  <script>
-    const roomIdInput = document.getElementById("room_id");
-    const roleInput = document.getElementById("role");
-    const createButton = document.getElementById("create");
-    const joinButton = document.getElementById("join");
-    const playButton = document.getElementById("play");
-
-    function createRoom(e) {
-      e.preventDefault();
-      fetch("http://localhost:3000/room/create", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }).then(async (res) => {
-        if (res.ok) {
-          localStorage.setItem("room_id", localStorage.getItem("username"));
-          localStorage.setItem("role", "player");
-          window.location.href = "/index.html";
-        }
-      });
-    }
-
-    function joinRoom(e) {
-      e.preventDefault();
-      localStorage.setItem("room_id", roomIdInput.value);
-      localStorage.setItem("role", roleInput.value);
-      window.location.href = "/index.html";
-    }
-
-    function playWithComputer(e){
-      e.preventDefault();
-      window.location.href = "/computer.html";
-    }
-
-    createButton.addEventListener("click", createRoom);
-    joinButton.addEventListener("click", joinRoom);
-    playButton.addEventListener("click", playWithComputer);
-    
-  </script>
+  <script type="module" src="./js/game.js"></script>
+  <script type="module" src="./js/start.js"></script>
 </html>

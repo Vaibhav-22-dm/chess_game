@@ -2,6 +2,33 @@ import { makeMove } from "./game.js";
 import { printBoard } from "./engine.js";
 
 
+const COLORS = {
+    W: 'white',
+    B: 'black'
+}
+
+const ICONS = {
+    black:
+    {
+        pawn: '♟',
+        knight: '♞',
+        bishop: '♝',
+        rook: '♜',
+        queen: '♛',
+        king: '♚',
+    },
+    white: {
+        pawn: '♙',
+        knight: '♘',
+        bishop: '♗',
+        rook: '♖',
+        queen: '♕',
+        king: '♔'
+    }
+}
+
+
+
 const validityFunctions = {
     "♖": isValidRookMove,
     "♜": isValidRookMove,
@@ -36,7 +63,7 @@ export function isValidMove(game, move) {
     
     if (isValid === true) {
         isValid = isValid && !isIllegalMove(game, move);
-        console.log("valid: ", JSON.stringify(isValid))
+        // console.log("valid: ", JSON.stringify(isValid))
     }
 
    
@@ -169,6 +196,17 @@ export function isValidPawnMove(game, move) {
         return true;
     }
 
+    return false;
+}
+
+export function isPawnPromotion(game, move){
+    if (game.board.board[move.fromRow][move.fromCol] && game.board.board[move.fromRow][move.fromCol].icon === ICONS[game.currentPlayer].pawn){
+        if(
+            (game.currentPlayer===COLORS.W && move.toRow===0) ||
+            (game.currentPlayer===COLORS.B && move.toRow===7)
+            
+        ) return true;
+    }
     return false;
 }
 
@@ -312,7 +350,7 @@ export function isStalemate(game) {
 
 // Function to check if the move is legal
 function isIllegalMove(game, move) {
-    console.log("Hi")
+    // console.log("Hi")
     let initial = JSON.stringify(game);
 
     let currentPlayer = game.board.board[move.fromRow][move.fromCol].color 
@@ -320,8 +358,8 @@ function isIllegalMove(game, move) {
 
     let dummy = JSON.parse(JSON.stringify(game))
 
-    console.log("Initially: ")
-    printBoard(dummy.board.board)
+    // console.log("Initially: ")
+    // printBoard(dummy.board.board)
 
     dummy.selectedSquare = {
         row: move.fromRow,
@@ -332,8 +370,8 @@ function isIllegalMove(game, move) {
 
     makeMove(dummy, move.toRow, move.toCol);
 
-    console.log("Finally: ")
-    printBoard(dummy.board.board)
+    // console.log("Finally: ")
+    // printBoard(dummy.board.board)
 
     let kingPosition = null;
 
@@ -351,7 +389,7 @@ function isIllegalMove(game, move) {
         }
     }
 
-    console.log("king: ", kingPosition)
+    // console.log("king: ", kingPosition)
 
     if (kingPosition === null) return false;
 
@@ -385,7 +423,7 @@ function isIllegalMove(game, move) {
                     }
                 )
             ) {
-                console.log()
+                // console.log()
                 game = JSON.parse(initial)
                 return true;
             }
